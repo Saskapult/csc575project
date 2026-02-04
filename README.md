@@ -3,6 +3,11 @@
 Here are some ideas and thoughts that I have had. 
 Feel free to edit or add to or this!
 
+Also I *love* funky names. 
+I spent way too long thinking of Auditory Gender Analysis for Vocal Expression (AGAVE). 
+Please let me knwo if you also have funky name ideas. 
+It will be fun! 
+
 ## Deliverable Idea 1 - Real-time Voice Space Program 
 This was my initial idea for the project. 
 It is to find measures for various qualities of voice such as vocal resonance and vocal weight and then put them on a graph for visualization. 
