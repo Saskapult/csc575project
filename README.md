@@ -11,6 +11,9 @@ Something like this already [exists](https://acousticgender.space/) but this one
 
 I was thinking that I’d implement this as a web page. The computation could be performed with rust compiled to WASM but that’s mostly because I want to write some rust code. Otherwise javascript would probably work too. 
 
+One key part of this is that I want it to run in real-time. 
+I find that helpful and I can probably find some papers to back it up. 
+
 I (Katherine) want to work on this but I am open to working on other things. 
 
 ## Deliverable Idea 2 - Vocal Clip Correction 
