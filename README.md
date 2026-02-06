@@ -24,6 +24,12 @@ I (Katherine) want to work on this but I am open to working on other things.
 ## Deliverable Idea 2 - Vocal Clip Correction 
 It records one’s voice and then alters it and then plays the altered version back. Maybe with a configurable delay? The idea is that a person can try to mimic what they hear. 
 
+
+1. Project Description
+This project aims to develop an interactive "Mimicry Trainer" that records a user's voice and compares it against a reference vocal clip. The system will analyze key acoustic features—primarily pitch (f_0) and rhythm—to provide quantitative feedback on mimicry accuracy. Furthermore, it will utilize signal processing to "correct" the user's recorded clip to match the target's characteristics, providing a guided learning experience for vocal training or language acquisition.
+
+
+
 ## Deliverable Idea 3 - Finding Similar Voices (with Machine Learning?) 
 This could aim to compute voice similarity. One could arrange voices by some similarity metric. 
 
