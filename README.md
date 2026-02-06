@@ -21,7 +21,7 @@ I find that helpful and I can probably find some papers to back it up.
 
 I (Katherine) want to work on this but I am open to working on other things. 
 
-## Rayile Adam - Vocal Clip Correction 
+## Rayile Adam Deliverable Idea 2 - Vocal Clip Correction 
 It records one’s voice and then alters it and then plays the altered version back. Maybe with a configurable delay? The idea is that a person can try to mimic what they hear. 
 
 
