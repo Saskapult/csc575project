@@ -28,6 +28,12 @@ It records one’s voice and then alters it and then plays the altered version b
 #1. Project Description
 This project aims to develop an interactive "Mimicry Trainer" that records a user's voice and compares it against a reference vocal clip. The system will analyze key acoustic features—primarily pitch (f_0) and rhythm—to provide quantitative feedback on mimicry accuracy. Furthermore, it will utilize signal processing to "correct" the user's recorded clip to match the target's characteristics, providing a guided learning experience for vocal training or language acquisition.
 
+2. Tools and Data Sets
+Framework: PyTorch & TorchAudio for tensor-based audio processing and feature extraction.
+Analysis: Librosa for implementation of the Dynamic Time Warping (DTW) algorithm.
+UI/Deployment: Streamlit for a web-based interactive dashboard.
+Data Sets: LibriSpeech. For high-quality reference speech samples.
+CREMA-D: To provide varied emotional and tonal reference clips for testing mimicry across different vocal weights and resonances.
 
 
 ## Deliverable Idea 3 - Finding Similar Voices (with Machine Learning?) 
