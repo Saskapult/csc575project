@@ -25,7 +25,7 @@ I (Katherine) want to work on this but I am open to working on other things.
 It records one’s voice and then alters it and then plays the altered version back. Maybe with a configurable delay? The idea is that a person can try to mimic what they hear. 
 
 
-#1. Project Description
+1. Project Description
 This project aims to develop an interactive "Mimicry Trainer" that records a user's voice and compares it against a reference vocal clip. The system will analyze key acoustic features—primarily pitch (f_0) and rhythm—to provide quantitative feedback on mimicry accuracy. Furthermore, it will utilize signal processing to "correct" the user's recorded clip to match the target's characteristics, providing a guided learning experience for vocal training or language acquisition.
 
 2. Tools and Data Sets
@@ -34,6 +34,13 @@ Analysis: Librosa for implementation of the Dynamic Time Warping (DTW) algorithm
 UI/Deployment: Streamlit for a web-based interactive dashboard.
 Data Sets: LibriSpeech. For high-quality reference speech samples.
 CREMA-D: To provide varied emotional and tonal reference clips for testing mimicry across different vocal weights and resonances.
+
+3. Timeline
+Week 1 & 2: Set up PyTorch/TorchAudio environment; implement basic audio I/O (recording/playback) in Streamlit.
+Week 3 & 4: Implement pitch detection using torchaudio.functional.detect_pitch_frequency and generate Mel-spectrograms.
+Week 5 & 6: Implement Dynamic Time Warping (DTW) to align clips and calculate the similarity score (MSE).
+Week 7 & 8: Develop the correction module using torchaudio.transforms.PitchShift and finalize the README/ISMIR report.
+
 
 
 ## Deliverable Idea 3 - Finding Similar Voices (with Machine Learning?) 
