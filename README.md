@@ -49,7 +49,6 @@ This project focuses on building a "Mimicry Trainer" that records a user's voice
 * PI5 (advanced): Integrate a pre-trained model (e.g., Wav2Vec2) to improve alignment for better scoring.
 
 ### Objective 2: Develop a Vocal Correction and Feedback System
-This objective focuses on making the app easy to use for everyone.
 * PI1 (basic): Build a web interface with simple "Record" and "Play" buttons.
 * PI2 (basic): Display a visual comparison of Mel-spectrograms for the user and target clips.
 * PI3 (expected): Create a button for pitch shifting that "fixes" the user's voice to match the target
