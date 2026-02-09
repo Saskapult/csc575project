@@ -1,25 +1,60 @@
-# csc575project
+# Auditory Gender Analysis for Vocal Expression
 
-Here are some ideas and thoughts that I have had. 
-Feel free to edit or add to or this!
+## Katherine Smith - Real-time Voice Space Program 
 
-Also I *love* funky names. 
-I spent way too long thinking of Auditory Gender Analysis for Vocal Expression (AGAVE). 
-Please let me knwo if you also have funky name ideas. 
-It will be fun! 
+### Project Description 
+(note: the wording here will be changed, I'm just spewing ideas for now)
 
-## Deliverable Idea 1 - Real-time Voice Space Program 
-This was my initial idea for the project. 
-It is to find measures for various qualities of voice such as vocal resonance and vocal weight and then put them on a graph for visualization. 
-Something like this already [exists](https://acousticgender.space/) but this one could operate in real-time and include additional vocal metrics. 
+<!-- These are some qualities, and they aren't focused on -->
+Vocal resonance and vocal weight are highly influential in the perceived gender of a speaker. 
+It is possible to use vocal therapy techniques to alter vocal resonance and vocal weight. 
+Many barriers are faced in people seeking vocal therapy. 
+Online voice gender classification systems place undue weight on vocal pitch. 
+
+<!-- Relies on hearing (and that's bad sometimes) -->
+Learning to alter one's vocal resonance and vocal weight necessitates learning to identify these features in hearing. 
+Many transgender people face difficulty in listening to voice recordings, making this a hellish nightmare bad-time process. 
+Relies on the user being able to listen to and identify vocal features. 
+
+<!-- Real-time is good -->
+Real-time feedback is helpful in learning to alter vocal qualities. 
+System should be in real-time. 
+
+<!-- What I want to make -->
 [This video](https://www.youtube.com/watch?v=uVJuUoypVHE) shows some of the vocal qualities to measure (and it’d be really cool to use the audio from it for testing!). 
+Something like this already [exists](https://acousticgender.space/) but this one could operate in real-time and include additional vocal metrics. 
 
-I was thinking that I’d implement this as a web page. The computation could be performed with rust compiled to WASM but that’s mostly because I want to write some rust code. Otherwise javascript would probably work too. 
+### Tools and Data Sets 
+- Python 
+- Streamlit for UI 
+- UI/Development: Streamlit 
+- Rust for performance-critical code 
+- [VoxCeleb dataset](https://www.robots.ox.ac.uk/~vgg/data/voxceleb/)
 
-One key part of this is that I want it to run in real-time. 
-I find that helpful and I can probably find some papers to back it up. 
+### Timeline 
+- Week 1 & 2: Set up environment, create framework for audio file input, create basic UI for audio clip recording. 
+- Week 3 & 4: Extract vocal resonance measurement, display value as a UI element. 
+- Week 5 & 6: Extract vocal weight measurement, display as UI element. 
+- Week 7 & 8: Adapt previous algorithms to function using real-time audio input, display vocal resonance and weight in a 2d plot in real-time. 
 
-I (Katherine) want to work on this but I am open to working on other things. 
+### Objective 1: Offline Vocal Quality Measurement 
+Create a web page that takes a voice clip as input and outputs vocal resonance and weight metrics. 
+
+- PI1 (basic): Interface accepts mp3 clips. 
+- PI2 (basic): Interface can record audio clips, which may then be used as input. 
+- PI3 (expected): Interface displays vocal resonance metric. 
+- PI4 (expected): Interface displays vocal weight metric. 
+- PI5 (advanced): Vocal resonance and weight metrics are used to identify similar voices from a celebrity voice dataset. 
+
+### Objective 2: Real-time Vocal Quality Measurement 
+Objective 1 but in real-time. 
+
+- PI1 (basic): Interface records audio in real-time for immediate processing. 
+- PI2 (basic): Computation rate is adjustable to maintain real-time updates on less powerful hardware. 
+- PI3 (expected): Vocal resonance and vocal weight metrics are computed in real-time. 
+- PI4 (expected): Vocal quality measurements are continuous over time (ie: do not jump from extremes as a speaker talks). 
+- PI5 (advanced): Real-time suggestion of similar voices based on vocal resonance and weight metrics. 
+
 
 ## Rayile Adam Deliverable Idea 2 - Vocal Clip Correction 
 (It records one’s voice and then alters it and then plays the altered version back. Maybe with a configurable delay? The idea is that a person can try to mimic what they hear. )
@@ -55,12 +90,6 @@ This project focuses on building a "Mimicry Trainer" that records a user's voice
 * PI4 (expected): Provide a final "Mimicry Score" based on pitch accuracy and rhythmic alignment.
 * PI5 (advanced): Implement high-quality correction to make the "corrected" voice sound natural.
 
-
-## Deliverable Idea 3 - Finding Similar Voices (with Machine Learning?) 
-This could aim to compute voice similarity. One could arrange voices by some similarity metric. 
-
-## Deliverable Idea 4 - An Empty One 
-Feel free to add to these! 
 
 # Information that could be useful maybe 
 [VoxCeleb dataset](https://www.robots.ox.ac.uk/~vgg/data/voxceleb/)
