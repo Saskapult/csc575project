@@ -22,25 +22,39 @@ I find that helpful and I can probably find some papers to back it up.
 I (Katherine) want to work on this but I am open to working on other things. 
 
 ## Rayile Adam Deliverable Idea 2 - Vocal Clip Correction 
-It records one’s voice and then alters it and then plays the altered version back. Maybe with a configurable delay? The idea is that a person can try to mimic what they hear. 
+(It records one’s voice and then alters it and then plays the altered version back. Maybe with a configurable delay? The idea is that a person can try to mimic what they hear. )
+
+### Project Description
+This project focuses on building a "Mimicry Trainer" that records a user's voice and compares it to a target vocal clip. It analyzes pitch ($f_0$) and rhythm to provide feedback and uses signal processing to "correct" the user's voice to match the target's characteristics.
+
+### Tools and Data Sets
+* Framework: PyTorch & TorchAudio for handling the audio math, sound processing and feature extraction.
+* Analysis: Librosa for implementation of the Dynamic Time Warping (DTW) algorithm to help align the timing of the two voices.
+* UI/Deployment: Streamlit for a web-based interactive dashboard.
+* Data Sets: LibriSpeech. For high-quality reference speech samples.
+* CREMA-D: To provide varied emotional and tonal reference clips for testing mimicry across different vocal weights and resonances.
 
 
-1. Project Description
-This project aims to develop an interactive "Mimicry Trainer" that records a user's voice and compares it against a reference vocal clip. The system will analyze key acoustic features—primarily pitch (f_0) and rhythm—to provide quantitative feedback on mimicry accuracy. Furthermore, it will utilize signal processing to "correct" the user's recorded clip to match the target's characteristics, providing a guided learning experience for vocal training or language acquisition.
+### Timeline
+* Week 1 & 2: Set up PyTorch/TorchAudio environment; build basic recording/playback in Streamlit.
+* Week 3 & 4: Implement pitch detection and visualize Mel-spectrograms.
+* Week 5 & 6: Implement DTW to align clips and calculate the similarity score (MSE).
+* Week 7 & 8: Build the "Correction" module for pitch shifting and finalize the report.
 
-2. Tools and Data Sets
-Framework: PyTorch & TorchAudio for tensor-based audio processing and feature extraction.
-Analysis: Librosa for implementation of the Dynamic Time Warping (DTW) algorithm.
-UI/Deployment: Streamlit for a web-based interactive dashboard.
-Data Sets: LibriSpeech. For high-quality reference speech samples.
-CREMA-D: To provide varied emotional and tonal reference clips for testing mimicry across different vocal weights and resonances.
+### Objective 1: Implement an Automated Pitch Comparison Pipeline
+* PI1 (basic): Successfully load audio files into PyTorch tensors using TorchAudio.
+* PI2 (basic): Extract pitch frequency from recordings to visualize the "notes".
+* PI3 (expected): Use DTW to line up the user's voice with the target voice in time.
+* PI4 (expected): Calculate an accuracy score MSE showing the difference between voices.
+* PI5 (advanced): Integrate a pre-trained model (e.g., Wav2Vec2) to improve alignment for better scoring.
 
-3. Timeline
-Week 1 & 2: Set up PyTorch/TorchAudio environment; implement basic audio I/O (recording/playback) in Streamlit.
-Week 3 & 4: Implement pitch detection using torchaudio.functional.detect_pitch_frequency and generate Mel-spectrograms.
-Week 5 & 6: Implement Dynamic Time Warping (DTW) to align clips and calculate the similarity score (MSE).
-Week 7 & 8: Develop the correction module using torchaudio.transforms.PitchShift and finalize the README/ISMIR report.
-
+### Objective 2: Develop a Vocal Correction and Feedback System
+This objective focuses on making the app easy to use for everyone.
+* PI1 (basic): Build a web interface with simple "Record" and "Play" buttons.
+* PI2 (basic): Display a visual comparison of Mel-spectrograms for the user and target clips.
+* PI3 (expected): Create a button for pitch shifting that "fixes" the user's voice to match the target
+* PI4 (expected): Provide a final "Mimicry Score" based on pitch accuracy and rhythmic alignment.
+* PI5 (advanced): Implement high-quality correction to make the "corrected" voice sound natural.
 
 
 ## Deliverable Idea 3 - Finding Similar Voices (with Machine Learning?) 
