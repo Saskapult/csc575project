@@ -5,31 +5,34 @@
 ### Project Description 
 (note: the wording here will be changed, I'm just spewing ideas for now)
 
-<!-- These are some qualities, and they aren't focused on -->
-Vocal resonance and vocal weight are highly influential in the perceived gender of a speaker. 
-It is possible to use vocal therapy techniques to alter vocal resonance and vocal weight. 
-Many barriers are faced in people seeking vocal therapy. 
-Online voice gender classification systems place undue weight on vocal pitch. 
+<!-- Background -->
+Many transgender people seek to alter their perceived vocal gender. 
+The use of vocal therapy techniques is effective in altering perceived vocal gender. 
+Financial and social barriers prevent many transgender people from accessing vocal therapy for this purpose. 
+Many turn to online resources for gender classification, many of which solely measure vocal pitch. 
+Focusing solely on altering vocal pitch results is not generally effective in altering perceived vocal gender. 
+In contrast, vocal resonance and vocal weight are highly influential in the perceived gender of a speaker. 
 
-<!-- Relies on hearing (and that's bad sometimes) -->
-Learning to alter one's vocal resonance and vocal weight necessitates learning to identify these features in hearing. 
-Many transgender people face difficulty in listening to voice recordings, making this a hellish nightmare bad-time process. 
-Relies on the user being able to listen to and identify vocal features. 
+<!-- Resonance and weight -->
+Vocal resonance and vocal weight are alterable using voice therapy techniques. 
+Learning to alter one's vocal resonance and vocal weight necessitates learning to identify these features in recorded audio. 
+In the absence of an external judge, this is commonly performed by listening to one's own voice recordings. 
+Many transgender people face difficulty in listening to voice recordings due to vocal dysphoria. 
 
-<!-- Real-time is good -->
-Real-time feedback is helpful in learning to alter vocal qualities. 
-System should be in real-time. 
-
-<!-- What I want to make -->
-[This video](https://www.youtube.com/watch?v=uVJuUoypVHE) shows some of the vocal qualities to measure (and it’d be really cool to use the audio from it for testing!). 
-Something like this already [exists](https://acousticgender.space/) but this one could operate in real-time and include additional vocal metrics. 
+<!-- Look upon my works -->
+The Real-time Voice Space Program is a tool to measure vocal resonance and vocal weight. 
+These data points are shown on a 2d graph, with vocal resonance as one axis and vocal weight as the other. 
+The graphs depicted manually in [this video](https://www.youtube.com/watch?v=uVJuUoypVHE) may be considered a mock-up for the project, as well as some example audio for testing. 
+These are displayed in real-time to better encourage learning to control specific muscle groups. 
+Real-time operation is the key innovation of this project. 
+Similar voice measurement tools [exist](https://acousticgender.space/) yet do not operate in real-time. 
+<!-- Describe similar voices thingy too -->
 
 ### Tools and Data Sets 
-- Python 
-- Streamlit for UI 
-- UI/Development: Streamlit 
+- Python for main codebase 
+- Streamlit for UI  
 - Rust for performance-critical code 
-- [VoxCeleb dataset](https://www.robots.ox.ac.uk/~vgg/data/voxceleb/)
+- [VoxCeleb dataset](https://www.robots.ox.ac.uk/~vgg/data/voxceleb/) for voice similarity 
 
 ### Timeline 
 - Week 1 & 2: Set up environment, create framework for audio file input, create basic UI for audio clip recording. 
@@ -50,9 +53,9 @@ Create a web page that takes a voice clip as input and outputs vocal resonance a
 Objective 1 but in real-time. 
 
 - PI1 (basic): Interface records audio in real-time for immediate processing. 
-- PI2 (basic): Computation rate is adjustable to maintain real-time updates on less powerful hardware. 
-- PI3 (expected): Vocal resonance and vocal weight metrics are computed in real-time. 
-- PI4 (expected): Vocal quality measurements are continuous over time (ie: do not jump from extremes as a speaker talks). 
+- PI2 (basic): Measurement update rate is adjustable to maintain real-time feedback on less powerful hardware. 
+- PI3 (expected): Vocal resonance and vocal weight metrics may be computed in real-time. 
+- PI4 (expected): Vocal quality measurements are continuous over time (ie: do not jump from extremes during the course of a sentence). 
 - PI5 (advanced): Real-time suggestion of similar voices based on vocal resonance and weight metrics. 
 
 
