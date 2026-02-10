@@ -1,10 +1,4 @@
 # Auditory Gender Analysis for Vocal Expression
-
-## Katherine Smith - Real-time Voice Space Program 
-
-### Project Description 
-(note: the wording here will be changed, I'm just spewing ideas for now)
-
 <!-- Background -->
 Many transgender people seek to alter their perceived vocal gender. 
 The use of vocal therapy techniques is effective in altering perceived vocal gender. 
@@ -19,20 +13,22 @@ Learning to alter one's vocal resonance and vocal weight necessitates learning t
 In the absence of an external judge, this is commonly performed by listening to one's own voice recordings. 
 Many transgender people face difficulty in listening to voice recordings due to vocal dysphoria. 
 
+
+## Katherine Smith V00907761 - Real-time Voice Space Program 
+
+### Project Description 
 <!-- Look upon my works -->
-The Real-time Voice Space Program is a tool to measure vocal resonance and vocal weight. 
+The Real-time Voice Space Program is a tool to measure vocal resonance and vocal weight in recorded speech. 
 These data points are shown on a 2d graph, with vocal resonance as one axis and vocal weight as the other. 
 The graphs depicted manually in [this video](https://www.youtube.com/watch?v=uVJuUoypVHE) may be considered a mock-up for the project, as well as some example audio for testing. 
-These are displayed in real-time to better encourage learning to control specific muscle groups. 
-Real-time operation is the key innovation of this project. 
-Similar voice measurement tools [exist](https://acousticgender.space/) yet do not operate in real-time. 
-<!-- Describe similar voices thingy too -->
+These are displayed in real-time as a user speaks in order to better allow the user to learn to control specific muscle groups. 
+Real-time operation is the key innovation of this project, as similar voice measurement tools [exist](https://acousticgender.space/) but do not operate in real-time. 
 
 ### Tools and Data Sets 
 - Python for main codebase 
 - Streamlit for UI  
 - Rust for performance-critical code 
-- [VoxCeleb dataset](https://www.robots.ox.ac.uk/~vgg/data/voxceleb/) for voice similarity 
+- [VoxCeleb dataset](https://www.robots.ox.ac.uk/~vgg/data/voxceleb/) and [LibriSpeech](https://www.openslr.org/12) for voice similarity 
 
 ### Timeline 
 - Week 1 & 2: Set up environment, create framework for audio file input, create basic UI for audio clip recording. 
@@ -47,7 +43,7 @@ Create a web page that takes a voice clip as input and outputs vocal resonance a
 - PI2 (basic): Interface can record audio clips, which may then be used as input. 
 - PI3 (expected): Interface displays vocal resonance metric. 
 - PI4 (expected): Interface displays vocal weight metric. 
-- PI5 (advanced): Vocal resonance and weight metrics are used to identify similar voices from a celebrity voice dataset. 
+- PI5 (advanced): Vocal resonance and weight metrics are used to identify similar voices from a celebrity voice dataset to be used as examples. 
 
 ### Objective 2: Real-time Vocal Quality Measurement 
 Objective 1 but in real-time. 
@@ -91,22 +87,3 @@ This project focuses on building a "Mimicry Trainer" that records a user's voice
 * PI3 (expected): Create a button for pitch shifting that "fixes" the user's voice to match the target
 * PI4 (expected): Provide a final "Mimicry Score" based on pitch accuracy and rhythmic alignment.
 * PI5 (advanced): Implement high-quality correction to make the "corrected" voice sound natural.
-
-
-# Information that could be useful maybe 
-[VoxCeleb dataset](https://www.robots.ox.ac.uk/~vgg/data/voxceleb/)
-- Dataset of celebrity voices 
-
-Jess Gibbard
-- Does voice lessons, we could try contacting her for info (I’ve already asked her about measuring things using a spectrogram and she had useful info)
-
-[Real-Time Resonance Biofeedback for Gender-Affirming Voice Training: Usability Testing of the TruVox Web-Based Application](https://pubmed.ncbi.nlm.nih.gov/41176464/) 
-- Measures efficacy of a real-time training tool. Similar to idea 1 in concept
-
-[Web-Based Application for Real-Time Biofeedback of Vocal Resonance in Gender-Affirming Voice Training: Design and Usability Evaluation](https://www.isca-archive.org/interspeech_2025/mcallister25_interspeech.pdf) 
-- Measures the efficacy of an online resonance training tool. Like idea 1
-
-[Gender-Affirming Voice Training for Trans Women: Effectiveness of Training on Patient-Reported Outcomes and Listener Perceptions of Voice](https://pubs.asha.org/doi/10.1044/2023_JSLHR-23-00258) 
-- Shows the efficacy of voice training techniques 
-
-
