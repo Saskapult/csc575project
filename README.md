@@ -59,7 +59,7 @@ Objective 1 but in real-time.
 - PI5 (advanced): Real-time suggestion of similar voices based on vocal resonance and weight metrics. 
 
 
-## Rayile Adam V01073183 - Vocal Clip Correction 
+## Rayile (Raila) Adam V01073183 - Vocal Clip Correction 
 
 ### Project Description
 This project focuses on building a "Mimicry Trainer" that records a user's voice and compares it to a target vocal clip. It analyzes pitch ($f_0$) and rhythm to provide feedback and uses signal processing to "correct" the user's voice to match the target's characteristics.
