@@ -60,7 +60,6 @@ Objective 1 but in real-time.
 
 
 ## Rayile Adam V01073183 - Vocal Clip Correction 
-(It records one’s voice and then alters it and then plays the altered version back. Maybe with a configurable delay? The idea is that a person can try to mimic what they hear. )
 
 ### Project Description
 This project focuses on building a "Mimicry Trainer" that records a user's voice and compares it to a target vocal clip. It analyzes pitch ($f_0$) and rhythm to provide feedback and uses signal processing to "correct" the user's voice to match the target's characteristics.
