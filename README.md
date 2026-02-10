@@ -59,7 +59,7 @@ Objective 1 but in real-time.
 - PI5 (advanced): Real-time suggestion of similar voices based on vocal resonance and weight metrics. 
 
 
-## Rayile Adam Deliverable Idea 2 - Vocal Clip Correction 
+## Rayile Adam V01073183 - Vocal Clip Correction 
 (It records one’s voice and then alters it and then plays the altered version back. Maybe with a configurable delay? The idea is that a person can try to mimic what they hear. )
 
 ### Project Description
