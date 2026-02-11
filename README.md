@@ -24,8 +24,8 @@ The graphs depicted manually in [this video](https://www.youtube.com/watch?v=uVJ
 These are displayed in real-time as a user speaks in order to better allow the user to learn to control specific muscle groups. 
 Real-time operation is the key innovation of this project, as similar voice measurement tools [exist](https://acousticgender.space/) but do not operate in real-time. 
 
-Advanced goals involve utilizing vocal resonance and vocal weight qualities as a means to identify similar voices. 
-I hypothesize that this will select voices that are perceptually dissimilar aside from the qualities of vocal resonance and vocal weight, which may prove helpful in teaching a user to perceive these qualities. 
+<!-- Advanced goals involve utilizing vocal resonance and vocal weight qualities as a means to identify similar voices. 
+I hypothesize that this will select voices that are perceptually dissimilar aside from the qualities of vocal resonance and vocal weight, which may prove helpful in teaching a user to perceive these qualities.  -->
 
 ### Tools and Data Sets 
 - Python for main codebase 
