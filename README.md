@@ -24,6 +24,9 @@ The graphs depicted manually in [this video](https://www.youtube.com/watch?v=uVJ
 These are displayed in real-time as a user speaks in order to better allow the user to learn to control specific muscle groups. 
 Real-time operation is the key innovation of this project, as similar voice measurement tools [exist](https://acousticgender.space/) but do not operate in real-time. 
 
+Advanced goals involve utilizing vocal resonance and vocal weight qualities as a means to identify similar voices. 
+I hypothesize that this will select voices that are perceptually dissimilar aside from the qualities of vocal resonance and vocal weight, which may prove helpful in teaching a user to perceive these qualities. 
+
 ### Tools and Data Sets 
 - Python for main codebase 
 - Streamlit for UI  
@@ -39,19 +42,19 @@ Real-time operation is the key innovation of this project, as similar voice meas
 ### Objective 1: Offline Vocal Quality Measurement 
 Create a web page that takes a voice clip as input and outputs vocal resonance and weight metrics. 
 
-- PI1 (basic): Interface accepts mp3 clips. 
+- PI1 (basic): Interface accepts recorded audio files clips. 
 - PI2 (basic): Interface can record audio clips, which may then be used as input. 
 - PI3 (expected): Interface displays vocal resonance metric. 
 - PI4 (expected): Interface displays vocal weight metric. 
 - PI5 (advanced): Vocal resonance and weight metrics are used to identify similar voices from a celebrity voice dataset to be used as examples. 
 
 ### Objective 2: Real-time Vocal Quality Measurement 
-Objective 1 but in real-time. 
+Objective 2 builds on objective 1 with a focus on real-time operation.  
 
 - PI1 (basic): Interface records audio in real-time for immediate processing. 
 - PI2 (basic): Measurement update rate is adjustable to maintain real-time feedback on less powerful hardware. 
 - PI3 (expected): Vocal resonance and vocal weight metrics may be computed in real-time. 
-- PI4 (expected): Vocal quality measurements are continuous over time (ie: do not jump from extremes during the course of a sentence). 
+- PI4 (expected): Vocal quality measurements are continuous over time (ie: do not jump from extremes during the course of a normally-spoken sentence). 
 - PI5 (advanced): Real-time suggestion of similar voices based on vocal resonance and weight metrics. 
 
 
