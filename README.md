@@ -90,3 +90,10 @@ This project focuses on building a "Mimicry Trainer" that records a user's voice
 * PI3 (expected): Create a button for pitch shifting that "fixes" the user's voice to match the target
 * PI4 (expected): Provide a final "Mimicry Score" based on pitch accuracy and rhythmic alignment.
 * PI5 (advanced): Implement high-quality correction to make the "corrected" voice sound natural.
+
+
+
+# RESOURCES 
+
+
+
