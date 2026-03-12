@@ -77,14 +77,14 @@ This project focuses on building a "Mimicry Trainer" that records a user's voice
 * Week 5 & 6: Implement DTW to align clips and calculate the similarity score (MSE).
 * Week 7 & 8: Build the "Correction" module for pitch shifting and finalize the report.
 
-### Objective 1: Implement an Automated Pitch Comparison Pipeline
+### Objective 1: (Measurement) Implement an Automated Pitch Comparison Pipeline
 * PI1 (basic): Successfully load audio files into PyTorch tensors using TorchAudio.
 * PI2 (basic): Extract pitch frequency from recordings to visualize the "notes".
 * PI3 (expected): Use DTW to line up the user's voice with the target voice in time.
 * PI4 (expected): Calculate an accuracy score MSE showing the difference between voices.
 * PI5 (advanced): Integrate a pre-trained model (e.g., Wav2Vec2) to improve alignment for better scoring.
 
-### Objective 2: Develop a Vocal Correction and Feedback System
+### Objective 2: (Modification) Vocal Correction and Evaluation Pipeline
 * PI1 (basic): Build a web interface with simple "Record" and "Play" buttons.
 * PI2 (basic): Display a visual comparison of Mel-spectrograms for the user and target clips.
 * PI3 (expected): Create a button for pitch shifting that "fixes" the user's voice to match the target
