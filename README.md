@@ -91,6 +91,13 @@ This project focuses on building a "Mimicry Trainer" that records a user's voice
 * PI4 (expected): Provide a final "Mimicry Score" based on pitch accuracy and rhythmic alignment.
 * PI5 (advanced): Implement high-quality correction to make the "corrected" voice sound natural.
 
+### Objective 2 new: Develop a Vocal Correction and Feedback System
+* PI1 (basic): Implement in-notebook audio playback to easily listen to the original and target clips side-by-side.
+* PI2 (basic): Display side-by-side Mel-spectrograms to visually compare the acoustic energy of both voices.
+* PI3 (expected): Build a pitch-shifting algorithm that calculates the frequency gap and mathematically aligns the user's pitch with the target.
+* PI4 (expected): Calculate a final Mimicry Score (MSE) on the newly shifted audio to measure the exact improvement.
+* PI5 (advanced): Apply high-quality signal processing so the pitch-shifted voice maintains a natural, human sound instead of robotic distortion.
+
 
 
 # RESOURCES 
