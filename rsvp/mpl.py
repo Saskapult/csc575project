@@ -176,7 +176,7 @@ def plot_progressive(xs, srate):
 	plt.ion()
 
 	x = np.array([])
-	# resonance_peaks = []
+	resonance_peaks = []
 	slopes_peaks = []
 	# Graph to the second lowest of these 
 	winsize = 2048
@@ -187,19 +187,22 @@ def plot_progressive(xs, srate):
 		x = np.append(x, frame)
 
 		stft = np.abs(librosa.stft(x)) # Redundant, optimize 
-		# resonance, _ = vocal_resonance(stft, stft_freqs)
+		resonance, _ = vocal_resonance(stft, stft_freqs)
 		slopes = -spectral_slope(stft, stft_freqs)
 
-		# resonance_peaks_new, _ = signal.find_peaks(resonance)
+		# Update iff either one has a new peak 
+		resonance_peaks_new, _ = signal.find_peaks(resonance)
 		slopes_peaks_new, _ = signal.find_peaks(slopes)
-		if len(slopes_peaks_new) != len(slopes_peaks) and len(slopes) > 7:
+		if len(slopes_peaks_new) != len(slopes_peaks) and len(slopes) > 7 or len(resonance_peaks_new) != len(resonance_peaks):
 			print(f"New resonance peak! {len(slopes_peaks_new)}")
 			slopes_peaks = slopes_peaks_new
+			resonance_peaks = resonance_peaks_new
 
 			if graph:
 				graph.remove()
 			# graph = plt.plot(times[:len(resonance)], smoothing(resonance), color="red")[0]
-			graph = plt.plot(times[:len(slopes)], smoothing(slopes), color="red")[0]
+			# graph = plt.plot(times[:len(slopes)], smoothing(slopes), color="red")[0]
+			graph = plt.plot(smoothing(slopes), smoothing(resonance), color="red")[0]
 			plt.pause(0.001)
 	plt.ioff()
 	plt.show()
