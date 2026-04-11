@@ -9,11 +9,6 @@ import ffmpeg
 from tqdm import tqdm
 import time
 
-def resample_and_smooth(x_new, x_old, data) -> np.ndarray:
-	res = np.interp(x_new, x_old, data)
-	smoothed = signal.savgol_filter(res, window_length=17, polyorder=0)
-	return smoothed
-
 
 def show_plot_frt(xs, ys, sr, save_to=None):
 	pause_dur = 1.0 / sr
@@ -107,25 +102,32 @@ def spectrogram_frt(stft, f0, srate):
 
 
 def vocal_resonance(stft, stft_freqs):
-	peaks = [signal.find_peaks(f)[0] for f in stft.transpose()]
+	stft_peaks = [signal.find_peaks(f)[0] for f in stft.transpose()]
 	# For each frame, sort peaks by highest first
-	peak_indices = [
+	stft_peak_indices = [
 		p[np.argsort(block[p])[::-1]]
-		for block, p in zip(stft.transpose(), peaks)
+		for block, p in zip(stft.transpose(), stft_peaks)
 	]
 	# For each frame, map those peaks to their frequencies 
-	r = [stft_freqs[p] for p in peak_indices]
+	stft_peak_frequencies = [stft_freqs[p] for p in stft_peak_indices]
+
+	# print("stft", stft)
+	# print(f"p {stft_peaks}")
+	# print(f"pi {stft_peak_indices}")
+	# print("pf", stft_peak_frequencies)
 
 	formants = []
 	for i in range(0, 3):
-		fn = np.array([d[i] for d in r])
+		# print(f"f{i+1}")
+		fn = np.array([d[i] for d in stft_peak_frequencies])
 		# fn = signal.medfilt(fn, kernel_size=7)
 		# # f1_peaks = signal.find_peaks(f1)[0]
 		# # f1s = resample_and_smooth(times, times[f1_peaks], f1[f1_peaks])
 		# fn_smooth = signal.savgol_filter(fn, window_length=17, polyorder=0)
 		formants.append(fn)
 	# Jess said to do this idk 
-	resonance = np.sum(np.array(formants), axis=0) / len(formants)
+	# print("formants", formants)
+	resonance = np.mean(np.array(formants), axis=0)
 	return resonance, formants
 
 
@@ -142,15 +144,18 @@ def spectral_slope(stft, stft_freqs):
 def smoothing(x):
 	peaks, _ = signal.find_peaks(x)
 
-	peak_threshold = np.median(x[peaks])
+	# peak_threshold = np.median(x[peaks])
 	# peak_threshold = np.quantile(x[peaks], 0.50)
 	# peaks = peaks[x[peaks] >= peak_threshold]
 
 	x = signal.medfilt(x, kernel_size=7)
 
-	x = resample_and_smooth(np.arange(0, len(x)), np.arange(0, len(x))[peaks], x[peaks])
+	# Inflate for filter 
+	x = np.interp(np.arange(0, len(x)*2), np.arange(0, len(x))[peaks], x[peaks])
 
 	x = signal.savgol_filter(x, window_length=17, polyorder=0)
+
+	x = np.interp(np.arange(0, len(x)//2), np.arange(0, len(x)), x)
 
 	return x
 
@@ -162,16 +167,50 @@ def time_this(f):
 	return result, en - st
 
 
-def main():
-	# input_mode = input("Input from microphone (m) or clip (c): ")
-	# if input_mode == "c":
-	# 	x, srate = librosa.load(select_file(Path("clips")))
-	# else:
+def plot_progressive(xs, srate):
+	stft_freqs = librosa.fft_frequencies(sr=srate)
 
+	stft0 = np.abs(librosa.stft(xs))
+	times = librosa.times_like(stft0, sr=srate*2)
+
+	plt.ion()
+
+	x = np.array([])
+	resonance_peaks = []
+	weight_peaks = []
+	# Graph to the second lowest of these 
+	winsize = 1024
+	graph = None
+	for i, o in enumerate(range(0, len(xs), winsize)):
+		print(f"{i+1}/{len(xs)//winsize+1}")
+		frame = xs[o:o+winsize]
+		x = np.append(x, frame)
+
+		stft = np.abs(librosa.stft(x)) # Redundant, optimize 
+		resonance, _ = vocal_resonance(stft, stft_freqs)
+
+		resonance_peaks_new, _ = signal.find_peaks(resonance)
+		if len(resonance_peaks_new) != len(resonance_peaks):
+			print(f"New resonance peak! {len(resonance_peaks_new)}")
+			resonance_peaks = resonance_peaks_new
+
+			if graph:
+				graph.remove()
+			graph = plt.plot(times[:len(resonance)], smoothing(resonance), color="red")[0]
+			plt.pause(0.001)
+	plt.ioff()
+	plt.show()
+
+
+
+def main():
 	print("Load")
 	x, srate = librosa.load(Path("clips/z_trim.wav"))
 	print("x", len(x))
 	print("srate", srate)
+
+	plot_progressive(x, srate)
+	exit(0)
 
 	stft_freqs = librosa.fft_frequencies(sr=srate)
 
