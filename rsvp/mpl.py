@@ -1,9 +1,11 @@
+import json
 from pathlib import Path
 import librosa
 import matplotlib.pyplot as plt
 import random
 import numpy as np
 from scipy import signal
+from scipy.ndimage import uniform_filter1d
 from scipy.stats import linregress
 import ffmpeg
 from tqdm import tqdm
@@ -111,6 +113,29 @@ def vocal_resonance(stft, stft_freqs):
 	# For each frame, map those peaks to their frequencies 
 	stft_peak_frequencies = [stft_freqs[p] for p in stft_peak_indices]
 
+	# # Could improve efficiency by finding first three max 
+	# # Apparently argpartition can do this 
+	# # stft_peaks_2 = np.argsort(stft.transpose(), axis=1)[:,::-1][:,:3]
+	# stft_peaks_2 = np.array([signal.find_peaks(frame)[0] for frame in stft.transpose()])
+	# stft_peak_indices_2 = np.argsort(stft.transpose()[stft_peaks_2], axis=1)[:,::-1]
+	# # print(stft_peaks_2)
+	# # print("new", stft_peaks_2[0])
+	# # print("old", stft_peaks[0])
+	# # exit(0)
+	# print(stft_freqs.shape)
+	# print(stft.shape)
+	# print(stft_peaks_2.shape)
+	# print("x", stft_peaks_2[0].shape)
+	# print("y", stft.transpose()[0].shape)
+	# i = 42
+	# plt.plot(stft.transpose()[i])
+	# # plt.plot(stft_peaks_2[i], stft.transpose()[i][stft_peaks_2[i]], marker="x", label="2")
+	# plt.plot(stft_peak_indices_2[i][:3], stft.transpose()[i][stft_peak_indices_2[i][:3]], marker="x", label="2")
+	# plt.plot(stft_peak_indices[i][:3], stft.transpose()[i][stft_peak_indices[i][:3]], marker="x", label="1")
+	# plt.legend()
+	# plt.show()
+	# exit(0)
+
 	# print("stft", stft)
 	# print(f"p {stft_peaks}")
 	# print(f"pi {stft_peak_indices}")
@@ -118,8 +143,10 @@ def vocal_resonance(stft, stft_freqs):
 
 	formants = []
 	for i in range(0, 3):
-		# print(f"f{i+1}")
-		fn = np.array([d[i] for d in stft_peak_frequencies])
+		# For each sample, map to the i-th formant frequency 
+		# print(stft_peak_frequencies)
+		# print(stft_peak_frequencies)
+		fn = np.array([d[i] if len(d) > i else 0.0 for d in stft_peak_frequencies])
 		# fn = signal.medfilt(fn, kernel_size=7)
 		# # f1_peaks = signal.find_peaks(f1)[0]
 		# # f1s = resample_and_smooth(times, times[f1_peaks], f1[f1_peaks])
@@ -127,6 +154,7 @@ def vocal_resonance(stft, stft_freqs):
 		formants.append(fn)
 	# Jess said to do this idk 
 	# print("formants", formants)
+	# What if we weighted by their amplitudes? 
 	resonance = np.mean(np.array(formants), axis=0)
 	return resonance, formants
 
@@ -142,20 +170,36 @@ def spectral_slope(stft, stft_freqs):
 
 
 def smoothing(x):
+	x = signal.medfilt(x, kernel_size=7)
+	x = signal.savgol_filter(x, window_length=17, polyorder=0)
+	
+
 	peaks, _ = signal.find_peaks(x)
+	proms, _, _ = signal.peak_prominences(x, peaks)
+	# print(peaks.shape)
+	# print(proms.shape)
+
+	prom_threshold = np.mean(proms)
+	peaks = peaks[proms >= prom_threshold]
 
 	# peak_threshold = np.median(x[peaks])
 	# peak_threshold = np.quantile(x[peaks], 0.50)
+	# peak_threshold = np.mean(x[peaks])
 	# peaks = peaks[x[peaks] >= peak_threshold]
 
-	x = signal.medfilt(x, kernel_size=7)
+	# x = signal.medfilt(x, kernel_size=7)
+
+	x = np.interp(np.arange(0, len(x)), np.arange(0, len(x))[peaks], x[peaks])
+	x = uniform_filter1d(x, size=41)
 
 	# Inflate for filter 
-	x = np.interp(np.arange(0, len(x)*2), np.arange(0, len(x))[peaks], x[peaks])
+	# x = np.interp(np.arange(0, len(x)*2), np.arange(0, len(x))[peaks], x[peaks])
 
-	x = signal.savgol_filter(x, window_length=17, polyorder=0)
+	# x = signal.savgol_filter(x, window_length=17, polyorder=0)
 
-	x = np.interp(np.arange(0, len(x)//2), np.arange(0, len(x)), x)
+	# x = np.interp(np.arange(0, len(x)//2), np.arange(0, len(x)), x)
+
+	# x = signal.medfilt(x, kernel_size=69)
 
 	return x
 
@@ -167,11 +211,12 @@ def time_this(f):
 	return result, en - st
 
 
-def plot_progressive(xs, srate):
-	stft_freqs = librosa.fft_frequencies(sr=srate)
+# n_fft 512 is reccommended for speech 
+def plot_progressive(xs, srate, n_fft=512):
+	stft_freqs = librosa.fft_frequencies(sr=srate, n_fft=n_fft)
 
-	stft0 = np.abs(librosa.stft(xs))
-	times = librosa.times_like(stft0, sr=srate*2)
+	stft0 = np.abs(librosa.stft(xs, n_fft=n_fft))
+	times = librosa.times_like(stft0, sr=srate*2, n_fft=n_fft)
 
 	plt.ion()
 
@@ -186,7 +231,8 @@ def plot_progressive(xs, srate):
 		frame = xs[o:o+winsize]
 		x = np.append(x, frame)
 
-		stft = np.abs(librosa.stft(x)) # Redundant, optimize 
+		# Redundant, optimize 
+		stft = np.abs(librosa.stft(x, n_fft=n_fft)) 
 		resonance, _ = vocal_resonance(stft, stft_freqs)
 		slopes = -spectral_slope(stft, stft_freqs)
 
@@ -208,20 +254,88 @@ def plot_progressive(xs, srate):
 	plt.show()
 
 
+def scatter(files):
+	results = []
+	for file in tqdm(files):
+		x, srate = librosa.load(file)
+
+		stft_freqs = librosa.fft_frequencies(sr=srate, n_fft=512)
+		stft = np.abs(librosa.stft(x, n_fft=512))
+
+		resonance, _ = vocal_resonance(stft, stft_freqs)
+		slopes = -spectral_slope(stft, stft_freqs)
+
+		results.append((np.mean(resonance), np.mean(slopes)))
+
+
+def gender_scatter(overwrite=True):
+	limit = 160
+	ffiles = list(Path("data/f").iterdir())[:limit//2]
+	mfiles = list(Path("data/m").iterdir())[:limit//2]
+	# ffiles = [Path("data/f/Christie Nowak_34.wav")]
+
+	# Make data or load cache 
+	cache_file = Path("clips/anacache22.json")
+	if overwrite or not cache_file.exists():
+		data = {}
+
+		ress = []
+		weights = []
+		for file in tqdm(ffiles + mfiles):
+			print(file)
+			x, srate = librosa.load(file)
+
+			stft_freqs = librosa.fft_frequencies(sr=srate, n_fft=512)
+			stft = np.abs(librosa.stft(x, n_fft=512))
+
+			resonance, _ = vocal_resonance(stft, stft_freqs)
+			slopes = -spectral_slope(stft, stft_freqs)
+
+			ress.append(resonance)
+			weights.append(slopes)
+		
+		data = {
+			"f": {
+				"resonance": [v.tolist() for v in ress[:len(ffiles)]],
+				"weight": [v.tolist() for v in weights[:len(ffiles)]],
+			},
+			"m": {
+				"resonance": [v.tolist() for v in ress[len(ffiles):]], 
+				"weight": [v.tolist() for v in weights[len(ffiles):]],
+			},
+		}
+
+		with open(cache_file, "w") as fp:
+			json.dump(data, fp)
+	else:
+		with open(cache_file, "r") as fp:
+			data = json.load(fp)
+	
+	for t, d in data.items():
+		colour = "red" if t == "f" else "blue"
+		x = [np.mean(r) for r in d["weight"]]
+		y = [np.mean(w) for w in d["resonance"]]
+		plt.scatter(x, y, label=t, color=colour)
+	plt.show()
+
 
 def main():
+	# gender_scatter()
+	# exit(0)
+
 	print("Load")
 	x, srate = librosa.load(Path("clips/z_trim.wav"))
+	# x, srate = librosa.load(Path("clips/v.wav"))
 	print("x", len(x))
 	print("srate", srate)
 
-	plot_progressive(x, srate)
-	exit(0)
+	# plot_progressive(x, srate)
+	# exit(0)
 
-	stft_freqs = librosa.fft_frequencies(sr=srate)
+	stft_freqs = librosa.fft_frequencies(sr=srate, n_fft=512)
 
-	stft = np.abs(librosa.stft(x))
-	times = librosa.times_like(stft, sr=srate)
+	stft = np.abs(librosa.stft(x, n_fft=512))
+	times = librosa.times_like(stft, sr=srate, n_fft=512)
 
 	# f0, vf, vp = librosa.pyin(
 	# 	x, sr=srate, 
@@ -231,36 +345,35 @@ def main():
 
 	resonance, formants = vocal_resonance(stft, stft_freqs)
 	
-	if False:
-		fig, ax = plt.subplots(2)
+	showit = True
+	fig, ax = plt.subplots(3)
+	if showit:
 		# ax.plot(times, f0, label='f0', color='cyan', linewidth=3)
 		for i, f in enumerate(formants):
 			ax[0].plot(times, f, label=f"f{i+1}", linestyle="--")
 		ax[0].plot(times, resonance, label="resonance")
 		ax[0].title.set_text("No smooth")
 
-		r = np.zeros_like(resonance)
-		for i, f in enumerate(formants):
-			s = smoothing(f)
-			r += s
-			ax[1].plot(times, s, label=f"f{i+1}", linestyle="--")
-		r /= 3
-		ax[1].plot(times, smoothing(resonance), label="resonance")
-		ax[1].plot(times, r, label="r")
+		# r = np.zeros_like(resonance)
+		# for i, f in enumerate(formants):
+			# s = smoothing(f)
+			# r += s
+			# ax[1].plot(times, s, label=f"f{i+1}", linestyle="--")
+		# r /= 3
+		# Why is r different than resoannce?? 
+		# R is better??? ah, it's smootheed! 
+		# ax[1].plot(times, r, label="r")
+		ax[1].plot(times, resonance, label="no smooth")
+		ax[1].plot(times, smoothing(resonance), label="smooth")
 		ax[1].title.set_text("Smooth")
-
-		plt.legend()
-		plt.show()
-		exit(0)
 
 	resonance = smoothing(resonance)
 
 	slopes = -spectral_slope(stft, stft_freqs)
-	if False:
-		fig, ax = plt.subplots()
-		ax.plot(times, slopes, label="no smooth")
+	if showit:
+		ax[2].plot(times, slopes, label="no smooth")
 
-		ax.plot(times, -smoothing(slopes), label="smooth")
+		ax[2].plot(times, smoothing(slopes), label="smooth")
 
 		plt.legend()
 		plt.show()
@@ -275,7 +388,7 @@ def main():
 	# plt.plot(weight, resonance, label="Smoothed Interpolated Peaks")	
 	# Clip becuase the ends are always funky
 	# Use windowing in real-time maybe? 
-	cut = 45
+	cut = 50
 	if False:
 		show_plot_frt(weight[cut:-cut], resonance[cut:-cut], srate)
 		plt.ioff()
