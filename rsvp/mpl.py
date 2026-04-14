@@ -171,7 +171,7 @@ def spectral_slope(stft, stft_freqs):
 
 def smoothing(x):
 	x = signal.medfilt(x, kernel_size=7)
-	x = signal.savgol_filter(x, window_length=17, polyorder=0)
+	# x = signal.savgol_filter(x, window_length=17, polyorder=0)
 	
 
 	peaks, _ = signal.find_peaks(x)
@@ -179,8 +179,8 @@ def smoothing(x):
 	# print(peaks.shape)
 	# print(proms.shape)
 
-	prom_threshold = np.mean(proms)
-	peaks = peaks[proms >= prom_threshold]
+	# prom_threshold = np.mean(proms)
+	# peaks = peaks[proms >= prom_threshold]
 
 	# peak_threshold = np.median(x[peaks])
 	# peak_threshold = np.quantile(x[peaks], 0.50)
@@ -268,14 +268,14 @@ def scatter(files):
 		results.append((np.mean(resonance), np.mean(slopes)))
 
 
-def gender_scatter(overwrite=True):
-	limit = 160
+def gender_scatter(n_fft, overwrite=False):
+	limit = 80
 	ffiles = list(Path("data/f").iterdir())[:limit//2]
 	mfiles = list(Path("data/m").iterdir())[:limit//2]
 	# ffiles = [Path("data/f/Christie Nowak_34.wav")]
 
 	# Make data or load cache 
-	cache_file = Path("clips/anacache22.json")
+	cache_file = Path(f"clips/anacache22_{n_fft}_{limit}.json")
 	if overwrite or not cache_file.exists():
 		data = {}
 
@@ -285,8 +285,8 @@ def gender_scatter(overwrite=True):
 			print(file)
 			x, srate = librosa.load(file)
 
-			stft_freqs = librosa.fft_frequencies(sr=srate, n_fft=512)
-			stft = np.abs(librosa.stft(x, n_fft=512))
+			stft_freqs = librosa.fft_frequencies(sr=srate, n_fft=n_fft)
+			stft = np.abs(librosa.stft(x, n_fft=n_fft))
 
 			resonance, _ = vocal_resonance(stft, stft_freqs)
 			slopes = -spectral_slope(stft, stft_freqs)
@@ -320,7 +320,12 @@ def gender_scatter(overwrite=True):
 
 
 def main():
-	# gender_scatter()
+
+	# n_fft = 512
+	# n_fft = 1024
+	n_fft = 2048
+
+	# gender_scatter(n_fft)
 	# exit(0)
 
 	print("Load")
@@ -332,10 +337,10 @@ def main():
 	# plot_progressive(x, srate)
 	# exit(0)
 
-	stft_freqs = librosa.fft_frequencies(sr=srate, n_fft=512)
+	stft_freqs = librosa.fft_frequencies(sr=srate, n_fft=n_fft)
 
-	stft = np.abs(librosa.stft(x, n_fft=512))
-	times = librosa.times_like(stft, sr=srate, n_fft=512)
+	stft = np.abs(librosa.stft(x, n_fft=n_fft))
+	times = librosa.times_like(stft, sr=srate, n_fft=n_fft)
 
 	# f0, vf, vp = librosa.pyin(
 	# 	x, sr=srate, 
@@ -346,7 +351,7 @@ def main():
 	resonance, formants = vocal_resonance(stft, stft_freqs)
 	
 	showit = True
-	fig, ax = plt.subplots(3)
+	fig, ax = plt.subplots(4)
 	if showit:
 		# ax.plot(times, f0, label='f0', color='cyan', linewidth=3)
 		for i, f in enumerate(formants):
@@ -365,7 +370,9 @@ def main():
 		# ax[1].plot(times, r, label="r")
 		ax[1].plot(times, resonance, label="no smooth")
 		ax[1].plot(times, smoothing(resonance), label="smooth")
+		ax[1].plot(times, np.mean(np.array([smoothing(f) for f in formants]), axis=0), label="smooth fs")
 		ax[1].title.set_text("Smooth")
+		ax[1].legend()
 
 	resonance = smoothing(resonance)
 
@@ -375,9 +382,9 @@ def main():
 
 		ax[2].plot(times, smoothing(slopes), label="smooth")
 
-		plt.legend()
-		plt.show()
-		exit(0)
+		ax[2].legend()
+		# plt.show()
+		# exit(0)
 
 	weight = smoothing(slopes)
 
@@ -388,13 +395,13 @@ def main():
 	# plt.plot(weight, resonance, label="Smoothed Interpolated Peaks")	
 	# Clip becuase the ends are always funky
 	# Use windowing in real-time maybe? 
-	cut = 50
+	cut = 15
 	if False:
 		show_plot_frt(weight[cut:-cut], resonance[cut:-cut], srate)
 		plt.ioff()
 		plt.show()
 	else:
-		plt.plot(weight[cut:-cut], resonance[cut:-cut], label="Smoothed Interpolated Peaks")
+		ax[3].plot(weight[cut:-cut], resonance[cut:-cut], label="Smoothed Interpolated Peaks")
 		plt.show()
 
 
