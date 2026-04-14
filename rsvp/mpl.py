@@ -102,6 +102,15 @@ def spectrogram_frt(stft, f0, srate):
 		.run()
 	)
 
+def vr_1d(frame_fft, fft_freqs):
+	peaks = signal.find_peaks(frame_fft)[0]
+	peak_indices = np.argsort(frame_fft[peaks])[::-1]
+	stft_peak_frequencies = fft_freqs[peak_indices]
+	
+	formants = np.array(stft_peak_frequencies[:3])
+	resonance = np.mean(np.array(formants), axis=0)
+	return resonance, formants
+
 
 def vocal_resonance(stft, stft_freqs):
 	stft_peaks = [signal.find_peaks(f)[0] for f in stft.transpose()]
@@ -172,7 +181,6 @@ def spectral_slope(stft, stft_freqs):
 def smoothing(x):
 	x = signal.medfilt(x, kernel_size=7)
 	# x = signal.savgol_filter(x, window_length=17, polyorder=0)
-	
 
 	peaks, _ = signal.find_peaks(x)
 	proms, _, _ = signal.peak_prominences(x, peaks)
@@ -212,11 +220,11 @@ def time_this(f):
 
 
 # n_fft 512 is reccommended for speech 
-def plot_progressive(xs, srate, n_fft=512):
+def plot_progressive(xs, srate, n_fft=1024):
 	stft_freqs = librosa.fft_frequencies(sr=srate, n_fft=n_fft)
 
 	stft0 = np.abs(librosa.stft(xs, n_fft=n_fft))
-	times = librosa.times_like(stft0, sr=srate*2, n_fft=n_fft)
+	times = librosa.times_like(stft0, sr=srate, n_fft=n_fft)
 
 	plt.ion()
 
@@ -224,30 +232,49 @@ def plot_progressive(xs, srate, n_fft=512):
 	resonance_peaks = []
 	slopes_peaks = []
 	# Graph to the second lowest of these 
-	winsize = 2048
+	segment_size = n_fft//4
 	graph = None
-	for i, o in enumerate(range(0, len(xs), winsize)):
-		print(f"{i+1}/{len(xs)//winsize+1}")
-		frame = xs[o:o+winsize]
-		x = np.append(x, frame)
+	# Keep a running stft buffer 
+	# Also resonance and weight (not smoothed!)
+	stft_segments = []
+	resonance_segments = []
+	slope_segments =[]
+	for i, o in enumerate(range(segment_size, len(xs), segment_size)):
+		print(f"{i+1}/{len(xs)//segment_size+1}")
+		# frame = xs[o:o+winsize]
+		x = xs[o-segment_size:o]
+
+		# frame_fft = np.abs(np.fft.fft(frame))
+		# fft_freqs = np.fft.fftfreq(len(frame), 1/srate)
+		# resonance, _ = vr_1d(frame_fft, fft_freqs)
+		# ress.append(resonance)
 
 		# Redundant, optimize 
 		stft = np.abs(librosa.stft(x, n_fft=n_fft)) 
+		stft_segments.append(stft[-1])
+		
 		resonance, _ = vocal_resonance(stft, stft_freqs)
+		resonance_segments.append(resonance)
+		resonance = np.hstack(resonance_segments)
+		
 		slopes = -spectral_slope(stft, stft_freqs)
+		slope_segments.append(slopes)
+		slopes = np.hstack(slope_segments)
 
 		# Update iff either one has a new peak 
 		resonance_peaks_new, _ = signal.find_peaks(resonance)
 		slopes_peaks_new, _ = signal.find_peaks(slopes)
-		if len(slopes_peaks_new) != len(slopes_peaks) and len(slopes) > 7 or len(resonance_peaks_new) != len(resonance_peaks):
+		if (i+1)%16==0: #len(slopes_peaks_new) != len(slopes_peaks) and len(slopes) > 7 or len(resonance_peaks_new) != len(resonance_peaks):
 			print(f"New resonance peak! {len(slopes_peaks_new)}")
 			slopes_peaks = slopes_peaks_new
 			resonance_peaks = resonance_peaks_new
 
 			if graph:
 				graph.remove()
-			# graph = plt.plot(times[:len(resonance)], smoothing(resonance), color="red")[0]
-			# graph = plt.plot(times[:len(slopes)], smoothing(slopes), color="red")[0]
+			# graph = plt.plot(times[:len(ress)], ress, color="red")[0]
+			print(times.shape, resonance.shape)
+			# graph = plt.plot(smoothing(resonance), color="red")[0]
+			# graph = plt.plot(smoothing(slopes), color="red")[0]
 			graph = plt.plot(smoothing(slopes), smoothing(resonance), color="red")[0]
 			plt.pause(0.001)
 	plt.ioff()
@@ -325,7 +352,7 @@ def main():
 	# n_fft = 1024
 	n_fft = 2048
 
-	# gender_scatter(n_fft)
+	# gender_scatter(512)
 	# exit(0)
 
 	print("Load")
@@ -334,8 +361,8 @@ def main():
 	print("x", len(x))
 	print("srate", srate)
 
-	# plot_progressive(x, srate)
-	# exit(0)
+	plot_progressive(x, srate)
+	exit(0)
 
 	stft_freqs = librosa.fft_frequencies(sr=srate, n_fft=n_fft)
 
@@ -350,7 +377,7 @@ def main():
 
 	resonance, formants = vocal_resonance(stft, stft_freqs)
 	
-	showit = True
+	showit = False
 	fig, ax = plt.subplots(4)
 	if showit:
 		# ax.plot(times, f0, label='f0', color='cyan', linewidth=3)
@@ -390,19 +417,17 @@ def main():
 
 
 	print("Plot!")
-	plt.xlabel("Vocal Weight")
-	plt.ylabel("Vocal Resonance")
-	# plt.plot(weight, resonance, label="Smoothed Interpolated Peaks")	
+	ax[3].xlabel("Vocal Weight")
+	ax[3].ylabel("Vocal Resonance")
+	ax[3].plot(weight[cut:-cut], resonance[cut:-cut], label="Smoothed Interpolated Peaks")
 	# Clip becuase the ends are always funky
 	# Use windowing in real-time maybe? 
 	cut = 15
-	if False:
+	if not showit:
+		plt.figure()
 		show_plot_frt(weight[cut:-cut], resonance[cut:-cut], srate)
 		plt.ioff()
-		plt.show()
-	else:
-		ax[3].plot(weight[cut:-cut], resonance[cut:-cut], label="Smoothed Interpolated Peaks")
-		plt.show()
+	plt.show()
 
 
 if __name__ == "__main__":
