@@ -5,15 +5,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pyaudio
 from threading import Lock
-
 from scipy import signal
-
 from mpl import cache_or, gender_scatter, smoothing, spectral_slope, vocal_resonance
 
 
 class VoiceApp:
 	def __init__(self, srate, bound_margin=0.1):
-		self.n_fft = 1024
+		self.n_fft = 2048
 		self.srate = srate
 		self.stft_freqs = librosa.fft_frequencies(sr=srate, n_fft=self.n_fft)
 
@@ -41,7 +39,7 @@ class VoiceApp:
 		# print(f"Receive {len(x)} samples")
 		if len(x) != self.segment_size:
 			print("Keep buffer here pls")
-			exit(0)
+			# exit(1)
 		# print(f"Process {len(x)} samples")
 
 		stft = np.abs(librosa.stft(x, n_fft=self.n_fft)) 
@@ -49,8 +47,7 @@ class VoiceApp:
 		slopes = -spectral_slope(stft, self.stft_freqs)
 
 		self.lock.acquire()
-		self.stft_segments.append(stft[-1])
-		# self.stft_segments += stft
+		self.stft_segments += stft.tolist()
 		self.resonance_segments.append(resonance)
 		self.slope_segments.append(slopes)
 		self.lock.release()
@@ -69,7 +66,10 @@ class VoiceApp:
 		# graph = plt.plot(smoothing(resonance), color="red")[0]
 		# graph = plt.plot(smoothing(slopes), color="red")[0]
 		# self.graph = plt.plot(smoothing(slopes), smoothing(resonance), color="red")[0]
-		self.graph = self.ax.plot(slopes, resonance, color="red")[0]
+		# self.graph = self.ax.plot(np.mean(slopes), np.mean(resonance), color="red", marker="x")[0]
+		self.graph = self.ax.plot(np.max(slopes), np.max(resonance), color="red", marker="x")[0]
+		# self.graph = self.ax.plot(slopes, resonance, color="red", marker="x")[0]
+		
 		# plt.pause(0.001)
 		# plt.show()
 
@@ -105,9 +105,10 @@ def start_recording():
 		frames_per_buffer=app.segment_size,
 	)
 	
-	
+	# Wait for enough samples
 	while len(app.stft_segments) < 10:
 		time.sleep(0.15)
+	
 	update_time = 1/30
 	run_dur = 100000.0
 	plt.ion()
@@ -134,12 +135,14 @@ def plot_file(path):
 	print(f"Each iteration takes {time_per_iteration*1000}ms")
 
 	plt.ion()
+	st = time.time()
 	for i, o in enumerate(range(0, len(x), app.segment_size)):
 		print(i)
 
 		t_iteration_st = time.time()
 		app.update(x[o:o+app.segment_size])
-		app.plot()
+		# if i > 64:
+		app.plot(limit=50)
 		t_iteration_end = time.time()
 
 		iteration_dur = t_iteration_end - t_iteration_st
@@ -150,6 +153,9 @@ def plot_file(path):
 		if app.closed:
 			print("Window closed! Exit!")
 			break
+	en = time.time()
+	print(f"Played {en-st}s ({(en-st)/intended_duration*100:.2f}% of intended)")
+	
 	plt.ioff()
 	plt.show()
 
@@ -168,11 +174,11 @@ def select_file(base_directory: Path) -> Path:
 		return selection
 
 
-def calibrate(n_fft, overwrite=False):
-	calibate_cache_path = Path("clips/app_calibration.json")
+def calibrate(n_fft, overwrite=False, limit=40):
+	calibate_cache_path = Path(f"clips/app_calibration_{n_fft}_{limit}.json")
 	data = cache_or(
 		calibate_cache_path, 
-		lambda: gender_scatter(n_fft, limit=40),
+		lambda: gender_scatter(n_fft, limit=limit),
 		overwrite=overwrite,
 	)
 
@@ -196,10 +202,8 @@ def main():
 	# 		print("TODO: mic clipped shit")
 	# print("Clipped stuff pls")
 
-	# calibrate(1024)
-	
-	start_recording()
-	# plot_file(Path("clips/z_trim.wav"))
+	# start_recording()
+	plot_file(Path("clips/z_trim.wav"))
 
 
 
