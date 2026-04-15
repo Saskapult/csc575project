@@ -295,49 +295,60 @@ def scatter(files):
 		results.append((np.mean(resonance), np.mean(slopes)))
 
 
-def gender_scatter(n_fft, overwrite=False):
-	limit = 80
-	ffiles = list(Path("data/f").iterdir())[:limit//2]
-	mfiles = list(Path("data/m").iterdir())[:limit//2]
-	# ffiles = [Path("data/f/Christie Nowak_34.wav")]
-
-	# Make data or load cache 
-	cache_file = Path(f"clips/anacache22_{n_fft}_{limit}.json")
-	if overwrite or not cache_file.exists():
-		data = {}
-
-		ress = []
-		weights = []
-		for file in tqdm(ffiles + mfiles):
-			print(file)
-			x, srate = librosa.load(file)
-
-			stft_freqs = librosa.fft_frequencies(sr=srate, n_fft=n_fft)
-			stft = np.abs(librosa.stft(x, n_fft=n_fft))
-
-			resonance, _ = vocal_resonance(stft, stft_freqs)
-			slopes = -spectral_slope(stft, stft_freqs)
-
-			ress.append(resonance)
-			weights.append(slopes)
-		
-		data = {
-			"f": {
-				"resonance": [v.tolist() for v in ress[:len(ffiles)]],
-				"weight": [v.tolist() for v in weights[:len(ffiles)]],
-			},
-			"m": {
-				"resonance": [v.tolist() for v in ress[len(ffiles):]], 
-				"weight": [v.tolist() for v in weights[len(ffiles):]],
-			},
-		}
-
-		with open(cache_file, "w") as fp:
+def cache_or(path, f, overwrite=False):
+	if overwrite or not path.exists():
+		data = f()
+		with open(path, "w") as fp:
 			json.dump(data, fp)
 	else:
-		with open(cache_file, "r") as fp:
+		with open(path, "r") as fp:
 			data = json.load(fp)
+	return data
+
+
+def gender_scatter(n_fft, limit=None, overwrite=False):
+	if limit is None:
+		limit = 99999999999
+	ffiles = list(Path("data/f").iterdir())[:limit//2]
+	mfiles = list(Path("data/m").iterdir())[:limit//2]
+
+	data = {}
+
+	ress = []
+	weights = []
+	for file in tqdm(ffiles + mfiles):
+		print(file)
+		x, srate = librosa.load(file)
+
+		stft_freqs = librosa.fft_frequencies(sr=srate, n_fft=n_fft)
+		stft = np.abs(librosa.stft(x, n_fft=n_fft))
+
+		resonance, _ = vocal_resonance(stft, stft_freqs)
+		slopes = -spectral_slope(stft, stft_freqs)
+
+		ress.append(resonance)
+		weights.append(slopes)
 	
+	data = {
+		"f": {
+			"resonance": [v.tolist() for v in ress[:len(ffiles)]],
+			"weight": [v.tolist() for v in weights[:len(ffiles)]],
+		},
+		"m": {
+			"resonance": [v.tolist() for v in ress[len(ffiles):]], 
+			"weight": [v.tolist() for v in weights[len(ffiles):]],
+		},
+	}
+
+	return data
+
+def gs(n_fft):
+	limit = 80
+	# Make data or load cache 
+	cache_file = Path(f"clips/anacache22_{n_fft}_{limit}.json")
+	# cache_or
+	data ={}
+
 	for t, d in data.items():
 		colour = "red" if t == "f" else "blue"
 		x = [np.mean(r) for r in d["weight"]]
