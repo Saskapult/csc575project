@@ -24,7 +24,7 @@ class VoiceApp:
 
 		self.lock = Lock()
 		self.fig = plt.figure(42)
-		self.ax = self.fig.add_subplot()
+		self.ax = self.fig.subplots(3, height_ratios=[1,1,4])
 		rmin, rmax, wmin, wmax = calibrate(self.n_fft)
 		rwid = rmax - rmin
 		wwid = wmax - wmin
@@ -33,6 +33,7 @@ class VoiceApp:
 		self.rmin = rmin-rwid*bound_margin
 		self.rmax = rmax+rwid*bound_margin
 		self.graph = None
+		self.graphs = []
 		self.closed = False
 
 	def update(self, x):
@@ -60,24 +61,123 @@ class VoiceApp:
 
 		if self.graph:
 			self.graph.remove()
+		for graph in self.graphs:
+			graph.remove()
+		self.graphs.clear()
 
-		# graph = plt.plot(times[:len(ress)], ress, color="red")[0]
-		# print(times.shape, resonance.shape)
-		# graph = plt.plot(smoothing(resonance), color="red")[0]
+
+		# Windows 
+		# Averages? 
+		# Convolve 
+		# ?
+
+
+		# resonance = np.convolve(resonance, np.ones(7), "valid")
+		# slopes = np.convolve(slopes, np.ones(7), "valid")
+		resonance = signal.medfilt(resonance, kernel_size=5)
+		slopes = signal.medfilt(slopes, kernel_size=5)
+
+		filtsz = 15000000000000
+		peak_d = 25
+
+		self.graphs.append(self.ax[0].plot(resonance, color="red", label="resonance")[0])
+		res_peaks = signal.find_peaks(resonance, distance=peak_d)[0]
+		self.graphs.append(self.ax[0].plot(res_peaks, resonance[res_peaks], color="red", marker="x")[0])
+		res_peaks_mf = resonance[res_peaks]#signal.medfilt(resonance[res_peaks], kernel_size=3)
+		# self.graphs.append(self.ax[0].plot(res_peaks, res_peaks_mf, color="blue", marker="x", label="smoothed")[0])
+		res_peaks_mf_i = np.interp(
+			np.arange(0, len(resonance)),
+			res_peaks,
+			res_peaks_mf,
+		)
+		# if len(res_peaks_mf_i) >= filtsz:
+			# res_peaks_mf_i = signal.medfilt(res_peaks_mf_i, filtsz)
+		# res_peaks_mf_i = np.convolve(resonance, np.ones(71), "valid") / 71
+		# self.graphs.append(self.ax[0].plot(res_peaks_mf_i, color="blue", label="smoothed")[0])
+		self.ax[0].legend(loc="upper left")
+	
+		self.graphs.append(self.ax[1].plot(slopes, color="red", label="weight")[0])
+		wei_peaks = signal.find_peaks(slopes, distance=peak_d)[0]
+		self.graphs.append(self.ax[1].plot(wei_peaks, slopes[wei_peaks], color="red", marker="x")[0])
+		wei_peaks_mf = signal.medfilt(slopes[wei_peaks], kernel_size=3)
+		# self.graphs.append(self.ax[1].plot(wei_peaks, wei_peaks_mf, color="blue", marker="x", label="smoothed")[0])
+		wei_peaks_mf_i = np.interp(
+			np.arange(0, len(slopes)),
+			wei_peaks,
+			wei_peaks_mf,
+		)
+		# if len(wei_peaks_mf_i) >= filtsz:
+			# wei_peaks_mf_i = signal.medfilt(wei_peaks_mf_i, filtsz)
+		# wei_peaks_mf_i = np.convolve(slopes, np.ones(71), "valid") / 71
+		# self.graphs.append(self.ax[1].plot(wei_peaks_mf_i, color="blue", label="smoothed")[0])
+		self.ax[1].legend(loc="upper left")
+
+
+		# self.graphs.append(self.ax.axhline(np.mean(resonance), color="blue", label="mean"))
+		# self.graphs.append(self.ax.axhline(np.median(resonance), color="green", label="median"))
+
+		# med = np.median(resonance)
+		# samples_i = np.arange(0, len(resonance))[resonance > med]
+		# interp = np.interp(np.arange(0, len(resonance)), samples_i, resonance[samples_i])
+
+		# chunk_size = 7
+		# thing = np.array_split(resonance, len(resonance) // chunk_size)
+		# print(thing)
+		# print([len(t) for t in thing])
+		# thing = thing[:-1]
+		# print(thing)
+		# print([len(t) for t in thing])
+		# exit(0)
+		# # thing_vals = np.mean(thing, axis=1)
+		# thing_vals = np.mean(thing, axis=1)
+		# thing_indices = np.arange(0, len(resonance), chunk_size)
+
+		# r_means = np.max(self.resonance_segments[-limit:], axis=1)
+		# r_means = signal.medfilt(r_means, kernel_size=7)
+		# print("moree", len(self.resonance_segments[-limit:]))
+		# print("basee", resonance.shape)
+		# print("means", r_means.shape)
+		# r_mean_smaples = np.hstack(r_means)
+		# print("stacked", r_mean_smaples)
+		# print(len(self.resonance_segments[-limit:]))
+		# interp = np.interp(
+		# 	np.arange(0, len(resonance)), 
+		# 	np.arange(0, len(self.resonance_segments[-limit:]))*2, 
+		# 	r_means,
+		# )
+
+		# print(interp)
+		# self.graphs.append(self.ax.plot(
+			# thing_vals, color="purple", label="interp", linestyle="--")[0])
+
+		# self.graphs.append(self.ax.plot(slopes, color="red")[0])
+		# graph = self.ax.plot(smoothing(resonance), color="red")[0]
 		# graph = plt.plot(smoothing(slopes), color="red")[0]
 		# self.graph = plt.plot(smoothing(slopes), smoothing(resonance), color="red")[0]
 		# self.graph = self.ax.plot(np.mean(slopes), np.mean(resonance), color="red", marker="x")[0]
-		self.graph = self.ax.plot(np.max(slopes), np.max(resonance), color="red", marker="x")[0]
-		# self.graph = self.ax.plot(slopes, resonance, color="red", marker="x")[0]
-		
+		# self.graph = self.ax.plot(np.max(slopes), np.max(resonance), color="red", marker="x")[0]
+		# to_i = min(np.max(res_peaks), np.max(wei_peaks))
+		to_i = min(
+			res_peaks[-2] if len(res_peaks) >= 2 else 0,
+			wei_peaks[-2] if len(wei_peaks) >= 2 else 0,
+		)
+		to_i = 999999999999999999
+		self.ax[0].axvline()
+
+		self.graph = self.ax[2].plot(wei_peaks_mf_i[100:to_i], res_peaks_mf_i[100:to_i], color="red")[0]
+		self.ax[2].set_xlabel("Vocal Weight")
+		self.ax[2].set_ylabel("Vocal Resonance")
+
 		# plt.pause(0.001)
 		# plt.show()
 
-		self.ax.set_xbound(self.wmin, self.wmax)
-		self.ax.set_ybound(self.rmin, self.rmax)
+		# self.ax.set_xbound(self.wmin, self.wmax)
+		# self.ax.set_ybound(self.rmin, self.rmax)
+		# self.ax.legend(loc="upper right")
 
 		def on_close(_event):
-			print("Window closed!")
+			if not self.closed:
+				print("Window closed!")
 			self.closed = True
 
 		self.fig.canvas.mpl_connect('close_event', on_close)
@@ -137,18 +237,19 @@ def plot_file(path):
 	plt.ion()
 	st = time.time()
 	for i, o in enumerate(range(0, len(x), app.segment_size)):
-		print(i)
-
 		t_iteration_st = time.time()
 		app.update(x[o:o+app.segment_size])
-		# if i > 64:
-		app.plot(limit=50)
+		if i > 16:
+			app.plot(limit=5000000)
 		t_iteration_end = time.time()
 
 		iteration_dur = t_iteration_end - t_iteration_st
-		print(f"iteration took {iteration_dur*1000}ms ({iteration_dur/time_per_iteration*100:.2f}% of intended)")
-		print("Pause", max(0.0, time_per_iteration - iteration_dur))
-		plt.pause(max(0.0000001, time_per_iteration - iteration_dur))
+		print(f"iteration took {iteration_dur*1000:.2f}ms ({iteration_dur/time_per_iteration*100:.2f}% of intended)")
+
+		intended_next_st = st + (i+1) * time_per_iteration
+		pause_dur = max(0.0000000001, intended_next_st - t_iteration_end)
+		print("Pause", pause_dur)
+		plt.pause(pause_dur)
 
 		if app.closed:
 			print("Window closed! Exit!")
