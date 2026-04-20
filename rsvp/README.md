@@ -3,14 +3,13 @@ Real-time Spectral Voice Program (RSVP) is a tool to measure vocal resonance and
 This implementation is written using Python and runs locally on a user's machine. 
 Future implementations aim to target the web, so stay tuned for that! 
 
-## How to run 
+## Setup 
 - Install python 
 - Install [uv](https://docs.astral.sh/uv/getting-started/installation/) 
 - Clone this repository 
 - Run `sh librispeech.sh` to set up the LibriSpeech dataset 
-- Run the program using `uv run app.py` 
 
-### Examples 
+## Usage 
 Run `uv run app.py rt` to analyze your microphone input. 
 
 Run `uv run app.py clip` to select a file to analyze. 
