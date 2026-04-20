@@ -10,8 +10,19 @@ dependencies = [
     "matplotlib>=3.10.8",
     "numpy>=2.4.3",
     "plotly>=6.6.0",
+    "pyaudio>=0.2.14",
+    "pydub>=0.25.1",
     "pyqt6>=6.11.0",
     "scipy>=1.17.1",
+    "simpleaudio>=1.0.4",
     "streamlit>=1.55.0",
     "tqdm>=4.67.3",
 ]
+
+# [project.scripts]
+# rt = "app:run_rt"
+# clip = "app:run_clip"
+
+# [build-system]
+# requires = ["hatchling"]
+# build-backend = "hatchling.build"
