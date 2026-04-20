@@ -255,10 +255,12 @@ def metrics_by_gender(n_fft, limit=None):
 	
 	data = {
 		"f": {
+			"paths": [str(p) for p in ffiles],
 			"resonance": [v.tolist() for v in ress[:len(ffiles)]],
 			"weight": [v.tolist() for v in weights[:len(ffiles)]],
 		},
 		"m": {
+			"paths": [str(p) for p in mfiles],
 			"resonance": [v.tolist() for v in ress[len(ffiles):]], 
 			"weight": [v.tolist() for v in weights[len(ffiles):]],
 		},
@@ -267,7 +269,7 @@ def metrics_by_gender(n_fft, limit=None):
 	return data
 
 
-def gender_scatter(n_fft, limit=80):
+def gender_scatter(n_fft, limit=512):
 	""" 
 	Creates a scatter plot showing mean vocal weight and resonance for 
 	speakers divided by gender. 
@@ -275,7 +277,6 @@ def gender_scatter(n_fft, limit=80):
 
 	# Make data or load cache 
 	cache_file = Path(f"clips/gender_scatter_{n_fft}_{limit}.json")
-	# cache_or
 	data = cache_or(cache_file, lambda: metrics_by_gender(n_fft, limit=limit))
 
 	for t, d in data.items():
@@ -283,8 +284,6 @@ def gender_scatter(n_fft, limit=80):
 		x = [np.mean(r) for r in d["weight"]]
 		y = [np.mean(w) for w in d["resonance"]]
 		plt.scatter(x, y, label=t, color=colour)
-
-
 
 
 def smoothing(x):
@@ -320,6 +319,42 @@ def smoothing(x):
 
 	return x
 
+
+def similarity(path: Path, n_fft=2048, limit=512):
+	# Make data or load cache 
+	cache_file = Path(f"clips/gender_scatter_{n_fft}_{limit}.json")
+	data = cache_or(cache_file, lambda: metrics_by_gender(n_fft, limit=limit))
+
+	paths = []
+	resonances = []
+	weights = []
+	for g in ["f", "m"]:
+		for i in range(0, len(data[g]["paths"])):
+			weights.append(np.mean(data[g]["weight"][i]))
+			resonances.append(np.mean(data[g]["resonance"][i]))
+			paths.append(Path(data[g]["paths"][i]))
+	
+	x, srate = librosa.load(Path("clips/z_trim.wav"))	
+	stft = np.abs(librosa.stft(x, n_fft=n_fft))
+	stft_freqs = librosa.fft_frequencies(sr=srate, n_fft=n_fft)
+	# Average vocal resonance 
+	x_resonance, _ = vocal_resonance(stft, stft_freqs)
+	x_resonance = np.mean(x_resonance)
+	# Average vocal weight 
+	x_weight = np.mean(-spectral_slope(stft, stft_freqs))
+
+	# Compute vocal distance with these measures 
+	distances = [
+		np.sqrt((x_resonance - r)**2 + (x_weight - w)**2) 
+		for r, w in zip(resonances, weights)
+	]
+	distances_i = np.argsort(distances)
+	print("This clip is closest to:")
+	for i in distances_i[:5]:
+		print(f"{distances[i]:.2f} - {paths[i]}")
+
+
+
 def main():
 
 	# n_fft = 512
@@ -328,6 +363,10 @@ def main():
 
 	# gender_scatter(n_fft)
 	# plt.show()
+
+	similarity(Path("clips/v.wav"))
+
+	exit(0)
 
 	print("Load")
 	x, srate = librosa.load(Path("clips/z_trim.wav"))
