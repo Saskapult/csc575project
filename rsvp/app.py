@@ -26,7 +26,7 @@ class VoiceApp:
 		self.slope_segments =[]
 
 		self.lock = Lock()
-		self.fig = plt.figure(42)
+		self.fig = plt.figure(42, figsize=(6, 8))
 		self.ax = self.fig.subplots(3, height_ratios=[1,1,4])
 		rmin, rmax, wmin, wmax = calibrate(self.n_fft)
 		rwid = rmax - rmin
@@ -43,6 +43,7 @@ class VoiceApp:
 		# print(f"Receive {len(x)} samples")
 		if len(x) != self.segment_size:
 			print("Keep buffer here pls")
+			return
 			# exit(1)
 		# print(f"Process {len(x)} samples")
 
@@ -82,32 +83,34 @@ class VoiceApp:
 			res_peaks,
 			res_peaks_mf,
 		) if len(res_peaks) > 0 else np.array([])
-		self.ax[0].legend(loc="upper left")
+		# self.ax[0].legend(loc="upper left")
+		self.ax[0].title.set_text("Resonance")
 	
-		self.graphs.append(self.ax[1].plot(slopes, color="red", label="weight")[0])
+		self.graphs.append(self.ax[1].plot(slopes, color="green", label="weight")[0])
 		wei_peaks = signal.find_peaks(slopes, distance=peak_d)[0]
-		self.graphs.append(self.ax[1].plot(wei_peaks, slopes[wei_peaks], color="red", marker="x")[0])
+		self.graphs.append(self.ax[1].plot(wei_peaks, slopes[wei_peaks], color="green", marker="x")[0])
 		wei_peaks_mf = signal.medfilt(slopes[wei_peaks], kernel_size=3)
 		wei_peaks_mf_i = np.interp(
 			np.arange(0, len(slopes)),
 			wei_peaks,
 			wei_peaks_mf,
 		) if len(wei_peaks) > 0 else np.array([])
-		self.ax[1].legend(loc="upper left")
+		# self.ax[1].legend(loc="upper left")
+		self.ax[1].title.set_text("Weight")
 
 		to_i = min(
 			res_peaks[-2] if len(res_peaks) >= 2 else 0,
 			wei_peaks[-2] if len(wei_peaks) >= 2 else 0,
 		)
 		to_i = 999999999999999999
-		self.ax[0].axvline()
+		# self.ax[0].axvline()
 
-		self.graph = self.ax[2].plot(wei_peaks_mf_i[100:to_i], res_peaks_mf_i[100:to_i], color="red")[0]
+		self.graph = self.ax[2].plot(wei_peaks_mf_i[100:to_i], res_peaks_mf_i[100:to_i], color="blue")[0]
 		self.ax[2].set_xlabel("Vocal Weight")
 		self.ax[2].set_ylabel("Vocal Resonance")
 
-		self.ax[2].set_xbound(self.wmin, self.wmax)
-		self.ax[2].set_ybound(self.rmin, self.rmax)
+		# self.ax[2].set_xbound(self.wmin, self.wmax)
+		# self.ax[2].set_ybound(self.rmin, self.rmax)
 
 		def on_close(_event):
 			if not self.closed:
@@ -154,7 +157,6 @@ def run_rt():
 			break
 
 	stream.close()
-	exit(0)
 
 
 def plot_file(path):
@@ -241,6 +243,7 @@ def calibrate(n_fft, overwrite=False, limit=40):
 	print(f"Weight from {min_weight} to {max_weight}")
 	
 	return min_resonance, max_resonance, min_weight, max_weight
+
 
 def run_clip(file=None):
 	if file is None:

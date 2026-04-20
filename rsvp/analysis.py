@@ -10,6 +10,8 @@ from scipy.stats import linregress
 import ffmpeg
 from tqdm import tqdm
 import time
+from sklearn import svm
+from scipy import stats
 
 
 # def show_plot_frt(xs, ys, sr, save_to=None):
@@ -283,7 +285,27 @@ def gender_scatter(n_fft, limit=512):
 		colour = "red" if t == "f" else "blue"
 		x = [np.mean(r) for r in d["weight"]]
 		y = [np.mean(w) for w in d["resonance"]]
-		plt.scatter(x, y, label=t, color=colour)
+		plt.scatter(x, y, label=t, color=colour, alpha=0.5)
+	plt.xlabel("Vocal Weight")
+	plt.ylabel("Vocal Resonance")
+	plt.xticks(rotation=15)
+	plt.tight_layout()
+
+	clf_x = []
+	clf_y = []
+	for g in ["f", "m"]:
+		for i in range(0, len(data[g]["paths"])):
+			clf_x.append((
+				np.mean(data[g]["resonance"][i]),
+				np.mean(data[g]["weight"][i]),
+			))
+			clf_y.append(0 if g == "f" else 1)
+	# clf = svm.LinearSVC()
+	# clf.fit(clf_x, clf_y)
+	slope, intercept, r_value, p_value, std_err = stats.linregress(x,y)
+
+	plt.xlim()
+	
 
 
 def smoothing(x):
@@ -361,10 +383,11 @@ def main():
 	# n_fft = 1024
 	n_fft = 2048
 
-	# gender_scatter(n_fft)
+	gender_scatter(n_fft)
+	plt.savefig("clips/gender_scatter.png")
 	# plt.show()
 
-	similarity(Path("clips/v.wav"))
+	# similarity(Path("clips/v.wav"))
 
 	exit(0)
 
