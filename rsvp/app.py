@@ -28,13 +28,16 @@ class VoiceApp:
 		self.lock = Lock()
 		self.fig = plt.figure(42, figsize=(6, 8))
 		self.ax = self.fig.subplots(3, height_ratios=[1,1,4])
-		rmin, rmax, wmin, wmax = calibrate(self.n_fft)
+		rmin, rmax, wmin, wmax, paths, rmeans, wmeans = calibrate(self.n_fft)
 		rwid = rmax - rmin
 		wwid = wmax - wmin
 		self.wmin = wmin-wwid*bound_margin
 		self.wmax = wmax+wwid*bound_margin
 		self.rmin = rmin-rwid*bound_margin
 		self.rmax = rmax+rwid*bound_margin
+		self.paths = paths
+		self.rmeans = rmeans
+		self.wmeans = wmeans
 		self.graph = None
 		self.graphs = []
 		self.closed = False
@@ -111,6 +114,23 @@ class VoiceApp:
 
 		# self.ax[2].set_xbound(self.wmin, self.wmax)
 		# self.ax[2].set_ybound(self.rmin, self.rmax)
+
+		# Find similar vocies 
+		# Compute vocal distance with these measures 
+		distances = [
+			np.sqrt((np.mean(resonance) - r)**2 + (np.mean(slopes) - w)**2) 
+			for r, w in zip(self.rmeans, self.wmeans)
+		]
+		distances_i = np.argsort(distances)
+		s = "\n".join([f"{distances[i]:.2f} - {self.paths[i]}" for i in distances_i[:3]])
+		# self.ax[2].title.set_text(s)
+		# self.ax[2].text(0, 0, s, va='top')
+		# for i in distances_i[:5]:
+			# print(f"{distances[i]:.2f} - {self.paths[i]}")
+		# print("This clip is closest to:")
+		# plt.figtext(0.5, -0.09, s, wrap=True, horizontalalignment='center', fontsize=14)
+		# self.fig.suptitle(s, y=0.1)
+		print("This voice is most similar to:\n", s)
 
 		def on_close(_event):
 			if not self.closed:
@@ -231,18 +251,22 @@ def calibrate(n_fft, overwrite=False, limit=40):
 		overwrite=overwrite,
 	)
 
-	all_resonance = data["f"]["resonance"] + data["m"]["resonance"]
-	min_resonance = np.min(np.hstack(all_resonance))
+	all_paths = data["f"]["paths"] + data["m"]["paths"]
+
+	all_resonance = np.hstack(data["f"]["resonance"] + data["m"]["resonance"])
+	min_resonance = np.min(all_resonance)
 	# max_resonance = np.max(np.hstack(all_resonance))
 	max_resonance = 3000.0
 	print(f"Resonance from {min_resonance} to {max_resonance}")
+	all_resonance_means = np.array([np.mean(r) for r in data["f"]["resonance"] + data["m"]["resonance"]])
 
-	all_weight = data["f"]["weight"] + data["m"]["weight"]
-	min_weight = np.min(np.hstack(all_weight))
-	max_weight = np.max(np.hstack(all_weight))
+	all_weight = np.hstack(data["f"]["weight"] + data["m"]["weight"])
+	min_weight = np.min(all_weight)
+	max_weight = np.max(all_weight)
 	print(f"Weight from {min_weight} to {max_weight}")
+	all_weight_means = np.array([np.mean(w) for w in data["f"]["weight"] + data["m"]["weight"]])
 	
-	return min_resonance, max_resonance, min_weight, max_weight
+	return min_resonance, max_resonance, min_weight, max_weight, all_paths, all_resonance_means, all_weight_means
 
 
 def run_clip(file=None):
