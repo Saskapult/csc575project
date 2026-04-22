@@ -7,7 +7,8 @@ Future implementations aim to target the web, so stay tuned for that!
 - Install python 
 - Install [uv](https://docs.astral.sh/uv/getting-started/installation/) 
 - Clone this repository 
-- Run `sh librispeech.sh` to set up the LibriSpeech dataset 
+- Run `sh cremad.sh` to set up the CREMA-D dataset (note: this will take quite a long time!)
+	- Alternatively, run `sh librispeech.sh` to set up the LibriSpeech dataset 
 
 ## Usage 
 Run `uv run app.py rt` to analyze your microphone input. 

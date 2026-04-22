@@ -1,15 +1,15 @@
-
-
-# From libri into data pls 
-# Make into wav too 
-
 from pathlib import Path
+import shutil
+import sys
 import ffmpeg
+import pandas as pd
+from tqdm import tqdm
 
+dir_base = Path("./data2")
+dir_f = dir_base/"f"
+dir_m = dir_base/"m"
 
-dir_f = Path("./data/f")
-dir_m = Path("./data/m")
-
+dir_base.mkdir(exist_ok=True)
 dir_f.mkdir(exist_ok=True)
 dir_m.mkdir(exist_ok=True)
 
@@ -39,13 +39,45 @@ def extract_librispeech_data(path: Path):
 			i_m += 1
 		print(i_f, i_m)
 
-		# # Get all files 
-		# for i, f in enumerate(id.glob("**/*.flac")):
-		# 	out_name = base/f"{s}_{i}.wav"
-		# 	if not out_name.exists():
-		# 		ffmpeg.input(f).output(str(out_name)).run()
+		# Get all files 
+		for i, f in enumerate(id.glob("**/*.flac")):
+			out_name = base/f"{s}_{i}.wav"
+			if not out_name.exists():
+				ffmpeg.input(f).output(str(out_name)).run()
 
+
+def extract_cremad_data(path: Path):
+	actors = pd.read_csv(path/"VideoDemographics.csv")
+	actors = actors.set_index("ActorID")
+	print(actors)
+	print(actors.dtypes)
+
+	for file in tqdm((path/"AudioWAV").iterdir()):
+		actor_id = int(file.name[:4])
+		gender = actors.loc[actor_id]
+		gender = gender["Sex"][0].lower()
+
+		i = 0
+		while True:
+			out_file = dir_base/gender/f"{actor_id}_{i}.wav"
+			if not out_file.exists():
+				break
+			else:
+				i += 1
+		
+		print(f"{file} -> {out_file}")
+		shutil.copy(file, out_file)
+
+
+def main():
+	if sys.argv[1] == "librispeech":
+		extract_librispeech_data(Path("./clips/LibriSpeech"))
+	elif sys.argv[1] == "cremad":
+		extract_cremad_data(Path("./clips/crema-d-mirror"))
+	else: 
+		print("Input a valid dataset name!")
+		exit(1)
 
 
 if __name__ == "__main__":
-	extract_librispeech_data(Path("./LibriSpeech"))
+	main()

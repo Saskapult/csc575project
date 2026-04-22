@@ -291,20 +291,20 @@ def gender_scatter(n_fft, limit=512):
 	plt.xticks(rotation=15)
 	plt.tight_layout()
 
-	clf_x = []
-	clf_y = []
-	for g in ["f", "m"]:
-		for i in range(0, len(data[g]["paths"])):
-			clf_x.append((
-				np.mean(data[g]["resonance"][i]),
-				np.mean(data[g]["weight"][i]),
-			))
-			clf_y.append(0 if g == "f" else 1)
+	# clf_x = []
+	# clf_y = []
+	# for g in ["f", "m"]:
+	# 	for i in range(0, len(data[g]["paths"])):
+	# 		clf_x.append((
+	# 			np.mean(data[g]["resonance"][i]),
+	# 			np.mean(data[g]["weight"][i]),
+	# 		))
+	# 		clf_y.append(0 if g == "f" else 1)
 	# clf = svm.LinearSVC()
 	# clf.fit(clf_x, clf_y)
-	slope, intercept, r_value, p_value, std_err = stats.linregress(x,y)
+	# slope, intercept, r_value, p_value, std_err = stats.linregress(x,y)
 
-	plt.xlim()
+	# plt.xlim()
 	
 
 
@@ -383,11 +383,11 @@ def main():
 	# n_fft = 1024
 	n_fft = 2048
 
-	gender_scatter(n_fft)
-	plt.savefig("clips/gender_scatter.png")
+	# gender_scatter(n_fft)
+	# plt.savefig("clips/gender_scatter.png")
 	# plt.show()
 
-	# similarity(Path("clips/v.wav"))
+	similarity(Path("katherine_20260128_191025.wav"))
 
 	exit(0)
 
