@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 import sys
 import time
@@ -13,8 +14,8 @@ import simpleaudio
 
 
 class VoiceApp:
-	def __init__(self, srate, bound_margin=0.1):
-		self.n_fft = 2048
+	def __init__(self, srate, bound_margin=0.1, n_fft=2048):
+		self.n_fft = n_fft
 		self.srate = srate
 		self.stft_freqs = librosa.fft_frequencies(sr=srate, n_fft=self.n_fft)
 
@@ -140,9 +141,9 @@ class VoiceApp:
 		self.fig.canvas.mpl_connect('close_event', on_close)
 
 
-def run_rt():
+def run_rt(n_fft):
 	srate = 22050
-	app = VoiceApp(srate)
+	app = VoiceApp(srate, n_fft=n_fft)
 
 	def callback(input_data, _frame_count, _time_info, _status):
 		input_data = np.frombuffer(input_data, dtype=np.float32)
@@ -179,9 +180,9 @@ def run_rt():
 	stream.close()
 
 
-def plot_file(path):
+def plot_file(path, update_rate, n_fft):
 	x, srate = librosa.load(path)
-	app = VoiceApp(srate)
+	app = VoiceApp(srate, n_fft=n_fft)
 
 	# Discern how long each iteration should take if we want to operate in 
 	# real-time 
@@ -204,7 +205,7 @@ def plot_file(path):
 	for i, o in enumerate(range(0, len(x), app.segment_size)):
 		t_iteration_st = time.time()
 		app.update(x[o:o+app.segment_size])
-		if i > 16 and i % 8 == 0:
+		if i > 16 and i % update_rate == 0:
 			app.plot(limit=5000000)
 		t_iteration_end = time.time()
 
@@ -269,22 +270,29 @@ def calibrate(n_fft, overwrite=False, limit=40):
 	return min_resonance, max_resonance, min_weight, max_weight, all_paths, all_resonance_means, all_weight_means
 
 
-def run_clip(file=None):
+def run_clip(file=None, update_rate=8, n_fft=2048):
 	if file is None:
 		file = select_file(Path("./clips"))
 	else:
 		file = Path(file)
-	plot_file(file)
+	plot_file(file, update_rate, n_fft)
 
 
 def main():
+	n_fft = 2048
+	if "RSVP_N_FFT" in os.environ:
+		n_fft = int(os.getenv("RSVP_N_FFT"))
+	update_rate = 8
+	if "RSVP_UPDATE_RATE" in os.environ:
+		update_rate = int(os.getenv("RSVP_UPDATE_RATE"))
+
 	if sys.argv[1] == "rt":
-		run_rt()
+		run_rt(n_fft=n_fft)
 	elif sys.argv[1] == "clip":
 		if len(sys.argv) > 2:
-			run_clip(sys.argv[2])
+			run_clip(sys.argv[2], update_rate=update_rate, n_fft=n_fft)
 		else:
-			run_clip()
+			run_clip(update_rate=update_rate, n_fft=n_fft)
 	else:
 		print("Enter 'rt' for real-time mic input or 'clip' to analyze a clip")
 		exit(1)

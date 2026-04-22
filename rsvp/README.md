@@ -15,3 +15,6 @@ Run `uv run app.py rt` to analyze your microphone input.
 
 Run `uv run app.py clip` to select a file to analyze. 
 Alternatively, skip file selection by selecting the file in the program arguments, such as in `uv run app.py clip <clips/your_clip_name.wav>`. 
+
+Most systems should be able to process RSVP in real-time by default, but if computational power is limited the program may be made faster by increasing the `RSVP_N_FFT` environment variable. 
+Alternatively, one can alter the `RSVP_UPDATE_RATE` (default 8) variable. 
